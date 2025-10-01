@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Read Recipe</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Recipe Book</h1>
+    <nav class="nav-tabs">
+        <a href="create.html" class="tab active">Create Recipe</a>
+        <a href="read.html" class="tab">Your Recipes</a>
+        <a href="update.html" class="tab">Change Recipe</a>
+        <a href="delete.html" class="tab">Delete Recipe</a>
+    </nav>
+  </header>
+
+  <main id="content">
+    <!-- Page-specific content goes here -->
+    <h2 class="subheader">Your Recipes</h2>
+
+    <div id="recipeGrid" class="recipe-grid">
+      <!-- Recipe cards will be inserted here dynamically -->
+    </div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Recipe Book App</p>
+  </footer>
+
+  <!-- jQuery CDN -->
+   <div id="confirmBox" style="display: none; position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%);
+    background-color: white; border: 2px solid black; border-radius: 12px; padding: 20px; text-align: center; z-index: 9999;">
+  <p style="margin-bottom: 20px;">Are you sure?</p>
+  <button id="confirmYes" style="margin-right: 10px; padding: 6px 12px;">Yes</button>
+  <button id="confirmNo" style="padding: 6px 12px;">No</button>
+</div>
+
+  <!-- Page-specific JS can go here -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll(".tab");
+    const currentPage = location.pathname.split("/").pop();
+
+    tabs.forEach(tab => {
+      tab.classList.remove("active"); 
+      if (tab.getAttribute("href") === currentPage) {
+        tab.classList.add("active");
+      }
+    });
+  });
+
+  $(document).ready(function () {
+    const tabs = document.querySelectorAll(".tab");
+    const currentPage = location.pathname.split("/").pop();
+    tabs.forEach(tab => {
+      tab.classList.remove("active");
+      if (tab.getAttribute("href") === currentPage) {
+        tab.classList.add("active");
+      }
+    });
+
+    // Fetch and display all recipes from backend
+    $.ajax({
+      url: "http://localhost:2000/",
+      method: "GET",
+      success: function (recipes) {
+        const $grid = $("#recipeGrid");
+        $grid.empty(); // Clear placeholder content
+
+        if (recipes.length === 0) {
+          $grid.append("<p>No recipes found.</p>");
+        } else {
+          recipes.forEach(recipe => {
+            const cardHTML = `
+              <div class="recipe-card">
+                <h3>${recipe.title}</h3>
+                <p><strong>Description:</strong> ${recipe.description}</p>
+                <p><strong>Instructions:</strong> ${recipe.instructions}</p>
+                <p><strong>Prep Time:</strong> ${recipe.prep_time} minutes</p>
+                <div class="card-actions">
+                  <button class="btn-action edit"
+                    data-title="${recipe.title}"
+                    data-description="${recipe.description}"
+                    data-instructions="${recipe.instructions}"
+                    data-prep="${recipe.prep_time}">
+                  Edit
+                  </button>
+
+                  <button class="btn-action delete">Delete</button>
+                </div>
+              </div>
+            `;
+            $grid.append(cardHTML);
+          });
+          $(document).on("click", ".edit", function () {
+            const card = $(this).closest(".recipe-card");
+
+            // Get the recipe info from the card
+            const title = card.find("h3").text();
+            const description = card.find("p").eq(0).text().replace("Description: ", "");
+            const instructions = card.find("p").eq(1).text().replace("Instructions: ", "");
+            const prepTime = card.find("p").eq(2).text().replace("Prep Time: ", "").replace(" minutes", "");
+
+            // Save data in localStorage
+            localStorage.setItem("editRecipe", JSON.stringify({
+              title,
+              description,
+              instructions,
+              prep_time: prepTime
+            }));
+
+            // Redirect to update page
+            window.location.href = "update.html";
+          });
+
+        }
+      },
+      error: function (xhr, status, error) {
+        console.error("Error fetching recipes:", error);
+        $("#recipeGrid").html("<p class='error'>Failed to load recipes. Try again later.</p>");
+      }
+    });
+  });
+
+let deleteTitle = null; // Track which recipe we're deleting
+
+// Show confirmation modal when "Delete" is clicked
+$(document).on("click", ".delete", function () {
+  const card = $(this).closest(".recipe-card");
+  deleteTitle = card.find("h3").text(); // Capture title to delete
+  $("#confirmBox").fadeIn(); // Show modal
+});
+
+// If user confirms deletion
+$("#confirmYes").click(function () {
+  if (!deleteTitle) return;
+
+  $.ajax({
+    url: "http://localhost:2000/" + encodeURIComponent(deleteTitle),
+    method: "DELETE",
+    success: function () {
+      location.reload(); // Refresh list on success
+    },
+    error: function (xhr, status, error) {
+      alert("Failed to delete recipe: " + error);
+    }
+  });
+
+  deleteTitle = null;
+  $("#confirmBox").fadeOut(); // Hide modal
+});
+
+// If user cancels deletion
+$("#confirmNo").click(function () {
+  deleteTitle = null;
+  $("#confirmBox").fadeOut();
+});
+</script>
+
+</body>
+</html>

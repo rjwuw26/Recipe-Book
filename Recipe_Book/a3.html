@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recipe Book API Documentation</title>
+  <link rel="stylesheet" href="a3.css" />
+</head>
+<body>
+  <header>
+    <h1>Recipe Book API Documentation</h1>
+  </header>
+
+    <main id="content">
+        <section>
+            <h2>Overview</h2>
+            <p>This RESTful API allows you to manage recipes through Create, Read, Update, and Delete (CRUD) operations.</p>
+            <p>The service exposes endpoints to add new recipes, retrieve existing ones, update details, and delete recipes.</p>
+        </section>
+
+        <section>
+            <h2>Base URL</h2>
+            <p>All API requests should be made to:</p>
+            <pre><code>http://localhost:2000/</code></pre>
+        </section>
+
+        <section>
+            <h2>Endpoints & URL Design</h2>
+            <ul>
+            <li><strong>GET /</strong> — Retrieve all recipes</li>
+            <li><strong>GET /:title</strong> — Retrieve a single recipe by its title</li>
+            <li><strong>POST /</strong> — Create a new recipe</li>
+            <li><strong>PUT /:title</strong> — Update an existing recipe by title</li>
+            <li><strong>DELETE /:title</strong> — Delete a recipe by title</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>Request & Response Formats</h2>
+            <h3>Headers</h3>
+            <p>Use <code>Content-Type: application/json</code> for POST and PUT requests.</p>
+
+            <h3>Recipe Object Structure</h3>
+            <pre><code>   {
+              "id": number,          // unique recipe ID (integer)
+              "title": string,       // recipe title (unique string)
+              "description": string, // brief description
+              "instructions": string,// preparation steps
+              "prep_time": number    // preparation time in minutes
+            }</code></pre>
+        </section>
+
+        <section>
+            <h2>Examples</h2>
+
+            <h3>GET all recipes</h3>
+            <pre><code>GET http://localhost:2000/</code></pre>
+            <p>Returns an array of recipe objects.</p>
+
+            <h3>GET a recipe by title</h3>
+            <pre><code>GET http://localhost:2000/Spaghetti Bolognese</code></pre>
+            <p>Returns the recipe object with title <em>Spaghetti Bolognese</em>.</p>
+
+            <h3>POST create new recipe</h3>
+            <pre><code>POST http://localhost:2000/
+        Content-Type: application/json
+
+        {
+        "title": "New Recipe",
+        "description": "Tasty and simple",
+        "instructions": "Step 1: ... Step 2: ...",
+        "prep_time": 25
+        }
+        </code></pre>
+
+            <h3>PUT update existing recipe</h3>
+            <pre><code>PUT http://localhost:2000/Spaghetti Bolognese
+        Content-Type: application/json
+
+        {
+        "description": "Updated description",
+        "instructions": "Updated instructions",
+        "prep_time": 35
+        }
+        </code></pre>
+
+            <h3>DELETE a recipe</h3>
+            <pre><code>DELETE http://localhost:2000/Spaghetti Bolognese</code></pre>
+        </section>
+
+        <section>
+            <h2>Error Handling</h2>
+            <p>The API returns appropriate HTTP status codes:</p>
+            <ul>
+            <li><strong>200 OK</strong> — Successful GET, PUT, DELETE operations</li>
+            <li><strong>201 Created</strong> — Successful POST operation</li>
+            <li><strong>400 Bad Request</strong> — Invalid input or malformed request</li>
+            <li><strong>404 Not Found</strong> — Recipe not found</li>
+            <li><strong>500 Internal Server Error</strong> — Server error</li>
+            </ul>
+        </section>
+    </main>
+
+  <footer>
+    <p>&copy; 2025 Recipe Book App</p>
+  </footer>
+</body>
+</html>

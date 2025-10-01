@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Update Recipe</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+</head>
+<body>
+  <header>
+    <h1>Recipe Book</h1>
+    <nav class="nav-tabs">
+        <a href="create.html" class="tab active">Create Recipe</a>
+        <a href="read.html" class="tab">Your Recipes</a>
+        <a href="update.html" class="tab">Change Recipe</a>
+        <a href="delete.html" class="tab">Delete Recipe</a>
+    </nav>
+  </header>
+
+  <main id="content">
+    <!-- Page-specific content goes here -->
+    <h2 class="subheader">Update a Recipe</h2>
+
+    <form id="updateRecipeForm">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" required />
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea id="description" name="description" rows="3" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="instructions">Instructions</label>
+        <textarea id="instructions" name="instructions" rows="5" required></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="prep_time">Prep Time (minutes)</label>
+        <input type="number" id="prep_time" name="prep_time" min="1" required />
+      </div>
+
+      <button type="submit" class="btn-submit">Update Recipe</button>
+    </form>
+
+    <div id="message"></div>
+
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Recipe Book App</p>
+  </footer>
+
+  <!-- Page-specific JS can go here -->
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll(".tab");
+    const currentPage = location.pathname.split("/").pop();
+
+    tabs.forEach(tab => {
+      tab.classList.remove("active");
+      if (tab.getAttribute("href") === currentPage) {
+        tab.classList.add("active");
+      }
+    });
+  });
+
+  document.addEventListener("DOMContentLoaded", () => {
+    const stored = localStorage.getItem("editRecipe");
+
+    if (stored) {
+      const recipe = JSON.parse(stored);
+      document.getElementById("title").value = recipe.title;
+      document.getElementById("description").value = recipe.description;
+      document.getElementById("instructions").value = recipe.instructions;
+      document.getElementById("prep_time").value = recipe.prep_time;
+
+      // Make title uneditable
+      document.getElementById("title").readOnly = true;
+    } else {
+      alert("No recipe data found to edit.");
+    }
+  });
+
+  document.getElementById("updateRecipeForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+
+  const stored = localStorage.getItem("editRecipe");
+  if (!stored) {
+    alert("No recipe selected to update.");
+    return;
+  }
+
+  const originalRecipe = JSON.parse(stored);
+
+  // Build updated recipe data to send
+  const updatedRecipe = {
+    title: originalRecipe.title,   // keep title, read-only but send it
+    description: document.getElementById("description").value,
+    instructions: document.getElementById("instructions").value,
+    prep_time: parseInt(document.getElementById("prep_time").value, 10)
+  };
+
+  $.ajax({
+    url: `http://localhost:2000/${encodeURIComponent(originalRecipe.title)}`,
+    method: "PUT",
+    contentType: "application/json",
+    data: JSON.stringify(updatedRecipe),
+    success: function (response) {
+      document.getElementById("message").textContent = "✅ Recipe updated successfully!";
+      localStorage.removeItem("editRecipe");
+    },
+    error: function (xhr, status, error) {
+      document.getElementById("message").textContent = `❌ Failed to update recipe: ${xhr.responseJSON?.Error || error}`;
+    }
+  });
+});
+</script>
+
+</body>
+</html>

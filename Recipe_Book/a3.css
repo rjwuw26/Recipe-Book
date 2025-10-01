@@ -1,0 +1,57 @@
+/* styles.css */
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(to right, #ff6f61, #cba6f7); /* coral to lavender */
+  color: #333;
+}
+
+header, footer {
+  text-align: center;
+  padding: 1rem;
+  color: white;
+}
+
+main#content {
+  background-color: rgba(255, 255, 255, 0.15); /* softer translucent white */
+  color: black; /* make all text inside white */
+  max-width: 950px;
+  min-height: 400px;
+  margin: 2rem auto;
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(6px); /* optional: stronger blur effect */
+}
+
+
+.nav-tabs {
+  display: flex;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.tab {
+  background-color: #d35400;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 8px;
+  margin: 0 2px;
+  transition: all 0.3s ease;
+  font-weight: 500;
+}
+
+
+.tab:hover {
+  background-color: #e67e22;
+}
+
+.tab.active {
+  background-color: white;
+  color: #d35400;
+  transform: scale(1.05);
+  z-index: 1;
+  box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.1);
+}
+

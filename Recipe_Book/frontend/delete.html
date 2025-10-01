@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Delete Recipe</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Recipe Book</h1>
+    <nav class="nav-tabs">
+      <a href="create.html" class="tab">Create Recipe</a>
+      <a href="read.html" class="tab">Your Recipes</a>
+      <a href="update.html" class="tab">Change Recipe</a>
+      <a href="delete.html" class="tab active">Delete Recipe</a>
+    </nav>
+  </header>
+
+  <main id="content">
+    <h2 class="subheader">Delete a Recipe</h2>
+
+    <form id="deleteRecipeForm">
+      <div class="form-group">
+        <label for="recipeSelect">Select a Recipe</label>
+        <select id="recipeSelect" name="title" required>
+          <option value="" disabled selected>Choose a recipe...</option>
+          <!-- Options will be populated dynamically -->
+        </select>
+      </div>
+
+      <button type="submit" class="btn-submit">Delete Recipe</button>
+    </form>
+
+    <div id="message"></div>
+  </main>
+
+  <footer>
+    <p>&copy; 2025 Recipe Book App</p>
+  </footer>
+
+  <script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const tabs = document.querySelectorAll(".tab");
+    const currentPage = location.pathname.split("/").pop();
+
+    tabs.forEach(tab => {
+      tab.classList.remove("active");
+      if (tab.getAttribute("href") === currentPage) {
+        tab.classList.add("active");
+      }
+    });
+  });
+
+  // Populate dropdown with recipes and handle delete with confirmation popup
+  $(document).ready(function () {
+    $.ajax({
+      url: 'http://localhost:2000/',
+      method: 'GET',
+      success: function (recipes) {
+        recipes.forEach(recipe => {
+          $('#recipeSelect').append(
+            `<option value="${recipe.title}">${recipe.title}</option>`
+          );
+        });
+      },
+      error: function () {
+        $('#message').html('<p class="error">Failed to load recipes.</p>');
+      }
+    });
+
+    $('#deleteRecipeForm').on('submit', function (e) {
+      e.preventDefault();
+      const title = $('#recipeSelect').val();
+      if (!title) return;
+
+      // Show the custom confirmation popup
+      $('#confirmPopup').fadeIn();
+
+      // Yes button handler
+      $('#confirmYes').off('click').on('click', function () {
+        $('#confirmPopup').fadeOut();
+
+        $.ajax({
+          url: `http://localhost:2000/${encodeURIComponent(title)}`,
+          method: 'DELETE',
+          success: function () {
+            $('#message').html('<p class="success">Recipe deleted successfully!</p>');
+            $('#recipeSelect option:selected').remove();
+          },
+          error: function () {
+            $('#message').html('<p class="error">Failed to delete recipe.</p>');
+          }
+        });
+      });
+
+      // No button handler
+      $('#confirmNo').off('click').on('click', function () {
+        $('#confirmPopup').fadeOut();
+      });
+    });
+  });
+</script>
+
+
+<!-- Custom confirmation popup -->
+<div id="confirmPopup" class="popup-overlay" style="display:none;">
+  <div class="popup-box">
+    <p>Are you sure?</p>
+    <div class="popup-buttons">
+      <button id="confirmYes" class="btn-popup">Yes</button>
+      <button id="confirmNo" class="btn-popup">No</button>
+    </div>
+  </div>
+</div>
+
+
+</body>
+</html>
